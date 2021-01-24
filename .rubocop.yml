@@ -1,6 +1,9 @@
 inherit_gem:
   prawn-dev: rubocop.yml
 
+AllCops:
+  NewCops: enable
+
 Style/Documentation:
   Exclude:
     # This is a false positive. The module is documented in lib/pdf/core.rb

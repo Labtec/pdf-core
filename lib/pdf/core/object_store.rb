@@ -22,6 +22,20 @@ module PDF
 
         @info ||= ref(opts[:info] || {}).identifier
         @root ||= ref(Type: :Catalog).identifier
+
+        if opts[:enable_pdfa_1b]
+          # PDF/A-1b requirement: XMP metadata
+          @xmp_metadata ||= ref(Type: :Metadata, Subtype: :XML).identifier
+          root.data[:Metadata] = xmp_metadata
+          xmp_metadata_content = XmpMetadata.new(opts[:info] || {})
+          xmp_metadata_content.enable_pdfa_1b = true
+          xmp_metadata.stream = Stream.new
+          xmp_metadata.stream << xmp_metadata_content.render
+
+          # PDF/A-1b requirement: OutputIntent with ICC profile stream
+          initialize_output_intent
+        end
+
         if opts[:print_scaling] == :none
           root.data[:ViewerPreferences] = { PrintScaling: :None }
         end
@@ -51,6 +65,10 @@ module PDF
       # @return [Reference]
       def root
         @objects[@root]
+      end
+
+      def xmp_metadata
+        @objects[@xmp_metadata]
       end
 
       # Document pages reference
@@ -145,6 +163,33 @@ module PDF
       # returns an array with the object IDs for all pages
       def get_page_objects(pages)
         pages.data[:Kids].map(&:identifier)
+      end
+
+      def initialize_output_intent
+        icc_profile_name = 'sRGB2014.icc'
+
+        icc_profile_stream = ref(N: 3)
+        icc_profile_stream.stream = Stream.new
+        icc_profile_stream << File.binread(
+          File.join(
+            File.dirname(__FILE__),
+            '..',
+            '..',
+            '..',
+            'data',
+            icc_profile_name
+          )
+        )
+
+        root.data[:OutputIntents] = [
+          {
+            Type: :OutputIntent,
+            S: :GTS_PDFA1,
+            OutputConditionIdentifier: LiteralString.new('IEC sRGB'),
+            Info: LiteralString.new('IEC 61966-2.1 Default RGB colour space - sRGB'),
+            DestOutputProfile: icc_profile_stream
+          }
+        ]
       end
     end
   end

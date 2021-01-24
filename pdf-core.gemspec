@@ -9,6 +9,7 @@ Gem::Specification.new do |spec|
   spec.files =
     Dir.glob('lib/**/**/*') +
     %w[COPYING GPLv2 GPLv3 LICENSE] +
+    ['data/sRGB2014.icc'] +
     ['pdf-core.gemspec']
   spec.require_path = 'lib'
   spec.required_ruby_version = '>= 2.7'

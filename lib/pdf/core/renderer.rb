@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'stringio'
+require 'digest'
 
 module PDF
   module Core
@@ -195,9 +196,20 @@ module PDF
         finalize_all_page_contents
 
         render_header(buffer)
-        render_body(buffer)
+
+        # We render the body into a temporary buffer to avoid
+        # two render passes for output and hashing.
+        # We must have the same offset as in output, otherwise
+        # the refs won't match.
+        body_output = StringIO.new(' ' * buffer.tell)
+        body_output.set_encoding(::Encoding::ASCII_8BIT)
+        body_output.seek(buffer.tell)
+        render_body(body_output)
+        body_output = body_output.string[buffer.tell..-1]
+        buffer.write(body_output)
+
         render_xref(buffer)
-        render_trailer(buffer)
+        render_trailer(buffer, hash_body(body_output))
 
         if output.respond_to?(:<<)
           output << buffer.string
@@ -241,6 +253,12 @@ module PDF
         state.render_body(output)
       end
 
+      # Create a hash from the body data. Needed for creating the trailer ID.
+      #
+      def hash_body(body_data)
+        Digest::MD5.digest(body_data)
+      end
+
       # Write out the PDF Cross Reference Table, as per spec 3.4.3
       #
       # @api private
@@ -262,11 +280,13 @@ module PDF
       # @api private
       # @param output [#<<]
       # @return [void]
-      def render_trailer(output)
+      def render_trailer(output, body_hash)
+        trailer_id = PDF::Core::ByteString.new(body_hash)
         trailer_hash = {
           Size: state.store.size + 1,
           Root: state.store.root,
           Info: state.store.info,
+          ID: [trailer_id, trailer_id], # PDF/A-1b requirement
         }
         trailer_hash.merge!(state.trailer) if state.trailer
 

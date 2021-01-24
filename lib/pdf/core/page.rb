@@ -189,7 +189,11 @@ module PDF
       # @return [PDF::Core::Reference<Hash>]
       def dictionary
         (defined?(@stamp_dictionary) && @stamp_dictionary) ||
-          document.state.store[@dictionary]
+        page_dictionary
+      end
+
+      def page_dictionary
+        document.state.store[@dictionary]
       end
 
       # Page resources dictionary.
@@ -338,7 +342,9 @@ module PDF
       #     => [ 0, 0, 595, 842 ]
       #
       def inherited_dictionary_value(key, local_dict = nil)
-        local_dict ||= dictionary.data
+        # Cannot use #dictionary here, because it will return the
+        # @stamp_dictionary when called in a #stamp_stream block.
+        local_dict ||= page_dictionary.data
 
         if local_dict.key?(key)
           local_dict[key]
