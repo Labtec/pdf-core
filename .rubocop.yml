@@ -1,2 +1,5 @@
 inherit_gem:
   prawn-dev: rubocop.yml
+
+AllCops:
+  NewCops: enable
