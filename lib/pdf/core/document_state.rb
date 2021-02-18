@@ -20,7 +20,7 @@ module PDF
       def initialize(options)
         normalize_metadata(options)
 
-        option_keys = %i[info print_scaling enable_pdfa_1b]
+        option_keys = %i[info print_scaling enable_pdfa_1b enable_pdfa_2b]
         store_params =
           options.select do |key|
             option_keys.include?(key)

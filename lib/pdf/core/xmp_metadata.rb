@@ -3,10 +3,10 @@
 module PDF
   module Core
     class XmpMetadata
-      attr_accessor :enable_pdfa_1b
+      attr_accessor :enable_pdfa_1b, :enable_pdfa_2b
 
       # These attributes must all be synchronized with their counterparts in the
-      # document information dictionary to be PDF/A-1b compliant.
+      # document information dictionary to be PDF/A compliant.
       attr_accessor :dc_title,
         :dc_creator,
         :dc_description,
@@ -33,7 +33,7 @@ module PDF
         result = "<?xpacket begin=\"\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\n"
         result << "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\">\n"
         result << "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
-        result << render_pdfaid if @enable_pdfa_1b
+        result << render_pdfaid if @enable_pdfa_1b || @enable_pdfa_2b
         result << render_xmp if @xmp_creator_tool || @xmp_create_date || @xmp_modify_date
         result << render_pdf if @pdf_keywords || @pdf_producer
         result << render_dc if @dc_title || @dc_creator || @dc_description
@@ -45,10 +45,17 @@ module PDF
       private
 
       def render_pdfaid
-        "  <rdf:Description xmlns:pdfaid=\"http://www.aiim.org/pdfa/ns/id/\" rdf:about=\"\">\n" \
-        "    <pdfaid:part>1</pdfaid:part>\n" \
-        "    <pdfaid:conformance>B</pdfaid:conformance>\n" \
-        "  </rdf:Description>\n"
+        if @enable_pdfa_1b
+          "  <rdf:Description xmlns:pdfaid=\"http://www.aiim.org/pdfa/ns/id/\" rdf:about=\"\">\n" \
+          "    <pdfaid:part>1</pdfaid:part>\n" \
+          "    <pdfaid:conformance>B</pdfaid:conformance>\n" \
+          "  </rdf:Description>\n"
+        elsif @enable_pdfa_2b
+          "  <rdf:Description xmlns:pdfaid=\"http://www.aiim.org/pdfa/ns/id/\" rdf:about=\"\">\n" \
+          "    <pdfaid:part>2</pdfaid:part>\n" \
+          "    <pdfaid:conformance>B</pdfaid:conformance>\n" \
+          "  </rdf:Description>\n"
+        end
       end
 
       def render_xmp
