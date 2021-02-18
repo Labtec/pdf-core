@@ -51,6 +51,22 @@ RSpec.describe PDF::Core::XmpMetadata do
       )
     end
 
+    it 'PDF/A-2b set' do
+      metadata.enable_pdfa_2b = true
+      expect(metadata.render).to eq(
+        "<?xpacket begin=\"\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\n" \
+        "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\">\n" \
+        "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n" \
+        "  <rdf:Description xmlns:pdfaid=\"http://www.aiim.org/pdfa/ns/id/\" rdf:about=\"\">\n" \
+        "    <pdfaid:part>2</pdfaid:part>\n" \
+        "    <pdfaid:conformance>B</pdfaid:conformance>\n" \
+        "  </rdf:Description>\n" \
+        "</rdf:RDF>\n" \
+        "</x:xmpmeta>\n" \
+        '<?xpacket end="r"?>'
+      )
+    end
+
     it 'title set' do
       metadata.dc_title = 'Some title'
       expect(metadata.render).to eq(
@@ -204,12 +220,12 @@ RSpec.describe PDF::Core::XmpMetadata do
       )
     end
 
-    it 'all information set' do
+    it 'all information set PDF/A-1b' do
       metadata.enable_pdfa_1b = true
       metadata.dc_title = 'Some title'
       metadata.dc_creator = 'John Doe'
       metadata.dc_description = 'Some description'
-      metadata.pdf_keywords = 'Testing, PDF/A'
+      metadata.pdf_keywords = 'Testing, PDF/A-1b'
       metadata.xmp_creator_tool = 'Prawn'
       metadata.pdf_producer = 'Prawn'
       metadata.xmp_create_date = Time.new(2017, 4, 13, 9, 31, 54, '+03:00')
@@ -228,7 +244,57 @@ RSpec.describe PDF::Core::XmpMetadata do
         "    <xmp:ModifyDate>2017-04-13T09:31:54+01:00</xmp:ModifyDate>\n" \
         "  </rdf:Description>\n" \
         "  <rdf:Description xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\" rdf:about=\"\">\n" \
-        "    <pdf:Keywords>Testing, PDF/A</pdf:Keywords>\n" \
+        "    <pdf:Keywords>Testing, PDF/A-1b</pdf:Keywords>\n" \
+        "    <pdf:Producer>Prawn</pdf:Producer>\n" \
+        "  </rdf:Description>\n" \
+        "  <rdf:Description xmlns:dc=\"http://purl.org/dc/elements/1.1/\" rdf:about=\"\">\n" \
+        "    <dc:title>\n" \
+        "      <rdf:Alt>\n" \
+        "        <rdf:li xml:lang=\"x-default\">Some title</rdf:li>\n" \
+        "      </rdf:Alt>\n" \
+        "    </dc:title>\n" \
+        "    <dc:creator>\n" \
+        "      <rdf:Seq>\n" \
+        "        <rdf:li>John Doe</rdf:li>\n" \
+        "      </rdf:Seq>\n" \
+        "    </dc:creator>\n" \
+        "    <dc:description>\n" \
+        "      <rdf:Alt>\n" \
+        "        <rdf:li xml:lang=\"x-default\">Some description</rdf:li>\n" \
+        "      </rdf:Alt>\n" \
+        "    </dc:description>\n" \
+        "  </rdf:Description>\n" \
+        "</rdf:RDF>\n" \
+        "</x:xmpmeta>\n" \
+        '<?xpacket end="r"?>'
+      )
+    end
+
+    it 'all information set PDF/A-2b' do
+      metadata.enable_pdfa_2b = true
+      metadata.dc_title = 'Some title'
+      metadata.dc_creator = 'John Doe'
+      metadata.dc_description = 'Some description'
+      metadata.pdf_keywords = 'Testing, PDF/A-2b'
+      metadata.xmp_creator_tool = 'Prawn'
+      metadata.pdf_producer = 'Prawn'
+      metadata.xmp_create_date = Time.new(2017, 4, 13, 9, 31, 54, '+03:00')
+      metadata.xmp_modify_date = Time.new(2017, 4, 13, 9, 31, 54, '+01:00')
+      expect(metadata.render).to eq(
+        "<?xpacket begin=\"\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\n" \
+        "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\">\n" \
+        "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n" \
+        "  <rdf:Description xmlns:pdfaid=\"http://www.aiim.org/pdfa/ns/id/\" rdf:about=\"\">\n" \
+        "    <pdfaid:part>2</pdfaid:part>\n" \
+        "    <pdfaid:conformance>B</pdfaid:conformance>\n" \
+        "  </rdf:Description>\n" \
+        "  <rdf:Description xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\" rdf:about=\"\">\n" \
+        "    <xmp:CreatorTool>Prawn</xmp:CreatorTool>\n" \
+        "    <xmp:CreateDate>2017-04-13T09:31:54+03:00</xmp:CreateDate>\n" \
+        "    <xmp:ModifyDate>2017-04-13T09:31:54+01:00</xmp:ModifyDate>\n" \
+        "  </rdf:Description>\n" \
+        "  <rdf:Description xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\" rdf:about=\"\">\n" \
+        "    <pdf:Keywords>Testing, PDF/A-2b</pdf:Keywords>\n" \
         "    <pdf:Producer>Prawn</pdf:Producer>\n" \
         "  </rdf:Description>\n" \
         "  <rdf:Description xmlns:dc=\"http://purl.org/dc/elements/1.1/\" rdf:about=\"\">\n" \
